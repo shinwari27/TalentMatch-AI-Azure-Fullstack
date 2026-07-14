@@ -86,7 +86,7 @@ describe("computeMatch", () => {
   test("scores a strong match highly across skills, experience, and education", () => {
     const result = computeMatch({
       job: baseJob,
-      candidateSkills: [{ Name: "React" }, { Name: "TypeScript" }, { Name: "Azure" }],
+      resumeText: "Experienced with React, TypeScript, and Azure cloud services.",
       candidateCertifications: [],
       candidateLanguages: [],
       verifiedEducations: [{ Degree: "Bachelor of Computer Science", FieldOfStudy: "Computer Science" }],
@@ -101,7 +101,7 @@ describe("computeMatch", () => {
   test("identifies missing skills correctly", () => {
     const result = computeMatch({
       job: baseJob,
-      candidateSkills: [{ Name: "React" }], // missing TypeScript and Azure
+      resumeText: "Experienced with React development.", // missing TypeScript and Azure
       candidateCertifications: [],
       candidateLanguages: [],
       verifiedEducations: [],
@@ -116,7 +116,7 @@ describe("computeMatch", () => {
     const jobWithNoCerts = { ...baseJob, preferredCertifications: [], preferredLanguages: [] };
     const result = computeMatch({
       job: jobWithNoCerts,
-      candidateSkills: [{ Name: "React" }],
+      resumeText: "Experienced with React development.",
       candidateCertifications: [],
       candidateLanguages: [],
       verifiedEducations: [],
@@ -132,7 +132,7 @@ describe("computeMatch", () => {
   test("a candidate with nothing in common scores 0, not a negative number or NaN", () => {
     const result = computeMatch({
       job: baseJob,
-      candidateSkills: [],
+      resumeText: "",
       candidateCertifications: [],
       candidateLanguages: [],
       verifiedEducations: [],

@@ -111,6 +111,29 @@ function scoreSkillsLikeCategory(requiredNames, candidateNames) {
   return { score, matched, missing };
 }
 
+/**
+ * Replaces dictionary-based Skills scoring. The old approach only ever
+ * detected skills that happened to already be hardcoded in
+ * resumeExtractor.js's KNOWN_SKILLS list — a real skill genuinely present
+ * in a resume (e.g. "Azure Functions," "Azure Service Bus") would never
+ * count if it wasn't already in that list, no matter how clearly it
+ * appeared. This checks each of a job's required skill names as a direct
+ * substring against the candidate's raw resume text instead — the same
+ * approach scoreProjects() already used successfully, extended here to
+ * Skills too. Certifications/Languages stay dictionary-based deliberately:
+ * those are much smaller, more standardized vocabularies (a handful of
+ * well-known cert codes and language names), so the dictionary approach's
+ * failure mode is far less likely to bite there.
+ */
+function scoreSkillsLive(requiredNames, resumeText) {
+  if (!requiredNames || requiredNames.length === 0) return null; // doesn't apply
+  const text = (resumeText || "").toLowerCase();
+  const matched = requiredNames.filter((skill) => text.includes(skill.toLowerCase()));
+  const missing = requiredNames.filter((skill) => !text.includes(skill.toLowerCase()));
+  const score = Math.round((matched.length / requiredNames.length) * 100);
+  return { score, matched, missing };
+}
+
 function scoreExperience(job, verifiedExperiences) {
   const range = parseExperienceRange(job.ExperienceRequired);
   if (!range) return null; // job didn't specify a parseable requirement
@@ -174,17 +197,16 @@ function scoreProjects(requiredSkillNames, projects) {
  * (only including categories that actually applied), missing skills, and
  * a plain-language reasons list a recruiter can read at a glance.
  */
-function computeMatch({ job, candidateSkills, candidateCertifications, candidateLanguages, verifiedEducations, verifiedExperiences, projects }) {
+function computeMatch({ job, resumeText, candidateCertifications, candidateLanguages, verifiedEducations, verifiedExperiences, projects }) {
   const jobSkillNames = job.skills?.map((s) => s.Name) || [];
   const jobCertNames = job.preferredCertifications?.map((c) => c.Name) || [];
   const jobLanguageNames = job.preferredLanguages?.map((l) => l.Name) || [];
 
-  const candidateSkillNames = candidateSkills.map((s) => s.Name);
   const candidateCertNames = candidateCertifications.map((c) => c.Name);
   const candidateLanguageNames = candidateLanguages.map((l) => l.Name);
 
   const results = {
-    skills: scoreSkillsLikeCategory(jobSkillNames, candidateSkillNames),
+    skills: scoreSkillsLive(jobSkillNames, resumeText),
     experience: scoreExperience(job, verifiedExperiences),
     education: scoreEducation(job, verifiedEducations),
     certifications: scoreSkillsLikeCategory(jobCertNames, candidateCertNames),

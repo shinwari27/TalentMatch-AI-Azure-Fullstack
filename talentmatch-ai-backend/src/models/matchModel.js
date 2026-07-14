@@ -4,7 +4,6 @@ const jobModel = require("./jobModel");
 const jobSkillModel = require("./jobSkillModel");
 const jobCertificationModel = require("./jobCertificationModel");
 const jobLanguageModel = require("./jobLanguageModel");
-const skillModel = require("./skillModel");
 const certificationModel = require("./certificationModel");
 const languageModel = require("./languageModel");
 
@@ -20,9 +19,8 @@ async function calculateMatchForCandidateAndJob(candidateId, jobId) {
   const job = await jobModel.getJobById(jobId);
   if (!job) throw Object.assign(new Error("Job not found."), { status: 404 });
 
-  const [skills, certifications, languages, educations, experiences, projects, jobSkills, jobCerts, jobLangs] =
+  const [certifications, languages, educations, experiences, projects, resumeExtraction, jobSkills, jobCerts, jobLangs] =
     await Promise.all([
-      skillModel.listCandidateSkills(candidateId),
       certificationModel.listCandidateCertifications(candidateId),
       languageModel.listCandidateLanguages(candidateId),
       pool.request().input("CandidateId", sql.Int, candidateId).query(
@@ -34,16 +32,24 @@ async function calculateMatchForCandidateAndJob(candidateId, jobId) {
       pool.request().input("CandidateId", sql.Int, candidateId).query(
         "SELECT * FROM Projects WHERE CandidateId = @CandidateId"
       ),
+      // The current source of truth for Skills scoring — the candidate's
+      // actual resume text, not a dictionary-gated snapshot taken once at
+      // upload time. IsCurrent = 1 picks the latest upload if a candidate
+      // has re-uploaded since applying.
+      pool.request().input("CandidateId", sql.Int, candidateId).query(
+        "SELECT ExtractedText FROM ResumeExtractions WHERE CandidateId = @CandidateId AND IsCurrent = 1"
+      ),
       jobSkillModel.listJobSkills(jobId),
       jobCertificationModel.listJobCertifications(jobId),
       jobLanguageModel.listJobLanguages(jobId),
     ]);
 
   const jobWithRequirements = { ...job, skills: jobSkills, preferredCertifications: jobCerts, preferredLanguages: jobLangs };
+  const resumeText = resumeExtraction.recordset[0]?.ExtractedText || "";
 
   return computeMatch({
     job: jobWithRequirements,
-    candidateSkills: skills,
+    resumeText,
     candidateCertifications: certifications,
     candidateLanguages: languages,
     verifiedEducations: educations.recordset,
