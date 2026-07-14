@@ -253,7 +253,6 @@ Documented honestly, not glossed over:
 | 15 | Monitoring and logging | ✅ Complete |
 | 16 | Automated testing | ✅ Complete |
 | 17 | CI/CD and deployment automation | ✅ Complete |
-| 18-19 | Documentation and portfolio polish | 🔄 In progress |
 
 ---
 
