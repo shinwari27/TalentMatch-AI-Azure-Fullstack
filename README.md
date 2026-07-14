@@ -30,6 +30,7 @@ Candidates upload a resume; Azure AI Document Intelligence extracts their skills
 
 ## Live Demo
 
+- **Demo Video:** [Watch on YouTube](https://youtu.be/jRaoqc3Ib6o)
 - **Frontend:** [app-talentmatch-web-11052.azurewebsites.net](https://app-talentmatch-web-11052.azurewebsites.net)
 - **Backend API health check:** [app-talentmatch-api-11052.azurewebsites.net/health](https://app-talentmatch-api-11052.azurewebsites.net/health)
 
@@ -127,6 +128,7 @@ Resume text is extracted using Azure AI Document Intelligence's prebuilt-read mo
 | Version Control | Git, GitHub |
 
 ---
+
 ## 🏗️ Architecture Diagram
 
 <p align="center">
@@ -138,6 +140,8 @@ Resume text is extracted using Azure AI Document Intelligence's prebuilt-read mo
 ---
 
 ## System Architecture
+
+![TalentMatch AI Architecture Diagram](./Documentation/images/architecture-diagram.png)
 
 ```
 talentmatch-ai-azure-fullstack/
@@ -262,6 +266,7 @@ Documented honestly, not glossed over:
 | 15 | Monitoring and logging | ✅ Complete |
 | 16 | Automated testing | ✅ Complete |
 | 17 | CI/CD and deployment automation | ✅ Complete |
+| 18-19 | Documentation and portfolio polish | 🔄 In progress |
 
 ---
 
